@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vacation Planner</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="toolbar">
+      <div class="toolbar-left">
+        <label>Year:</label>
+        <button type="button" id="yearPrev" title="Previous year">◀</button>
+        <span class="year-value" id="yearLabel">2026</span>
+        <button type="button" id="yearNext" title="Next year">▶</button>
+
+        <label style="margin-left: 12px">Zoom:</label>
+        <button type="button" id="zoomOut" title="Zoom out">−</button>
+        <span class="zoom-value" id="zoomLabel">100%</span>
+        <button type="button" id="zoomIn" title="Zoom in">+</button>
+      </div>
+      <div class="toolbar-right">
+        <span class="file-status" id="fileStatus" title="Connected plan file">No plan file</span>
+        <button type="button" id="openPlanBtn" title="Choose vacation-plan-2026-2036.json on the team drive">
+          Open plan file
+        </button>
+        <button type="button" id="undoBtn" title="Ctrl+Z">Undo</button>
+        <button type="button" id="redoBtn" title="Ctrl+Y">Redo</button>
+        <button type="button" id="saveBtn" title="Overwrite the selected plan file on the team drive">Save</button>
+      </div>
+    </header>
+
+    <main class="planner" aria-label="Yearly vacation grid">
+      <div class="corner-wrap">
+        <canvas id="cornerCanvas"></canvas>
+      </div>
+      <div class="header-scroll" id="headerScroll">
+        <canvas id="dayHeaderCanvas"></canvas>
+      </div>
+      <div class="row-scroll" id="rowScroll">
+        <canvas id="rowHeaderCanvas"></canvas>
+      </div>
+      <div class="body-scroll" id="bodyScroll">
+        <canvas id="dayBodyCanvas"></canvas>
+      </div>
+    </main>
+
+    <footer class="legend" id="statusLegend" aria-label="Absence legend"></footer>
+
+    <div id="tooltip" class="tooltip" hidden></div>
+    <div id="contextMenu" class="menu" hidden></div>
+
+    <div id="addDialog" class="dialog-backdrop" hidden>
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="addDialogTitle">
+        <h2 id="addDialogTitle" class="dialog-title">add</h2>
+        <fieldset class="dialog-kind">
+          <legend class="visually-hidden">Row type</legend>
+          <label class="dialog-radio">
+            <input type="radio" name="addKind" value="user" checked />
+            <span>user</span>
+          </label>
+          <label class="dialog-radio">
+            <input type="radio" name="addKind" value="region" />
+            <span>region</span>
+          </label>
+        </fieldset>
+        <label class="dialog-field" id="addUserField">
+          <span>user-name</span>
+          <input type="text" id="addUserName" autocomplete="off" />
+        </label>
+        <label class="dialog-field" id="addRegionField">
+          <span>select region</span>
+          <select id="addRegionSelect"></select>
+        </label>
+        <div class="dialog-actions">
+          <button type="button" id="addDialogOk" class="dialog-btn primary">OK</button>
+          <button type="button" id="addDialogCancel" class="dialog-btn">Abbrechen</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="renameDialog" class="dialog-backdrop" hidden>
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="renameDialogTitle">
+        <h2 id="renameDialogTitle" class="dialog-title">rename</h2>
+        <label class="dialog-field">
+          <span id="renameFieldLabel">name</span>
+          <input type="text" id="renameName" autocomplete="off" />
+        </label>
+        <div class="dialog-actions dialog-actions-spread">
+          <button type="button" id="renameRemoveBtn" class="dialog-btn danger" hidden>remove</button>
+          <div class="dialog-actions-right">
+            <button type="button" id="renameDialogOk" class="dialog-btn primary">OK</button>
+            <button type="button" id="renameDialogCancel" class="dialog-btn">Abbrechen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirmDialog" class="dialog-backdrop" hidden>
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="confirmDialogTitle">
+        <h2 id="confirmDialogTitle" class="dialog-title">confirm</h2>
+        <p id="confirmDialogMessage" class="dialog-message"></p>
+        <div class="dialog-actions">
+          <button type="button" id="confirmDialogYes" class="dialog-btn primary">Yes</button>
+          <button type="button" id="confirmDialogCancel" class="dialog-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/dates.js"></script>
+    <script src="js/regions.js"></script>
+    <script src="js/holidays.js"></script>
+    <script src="js/schoolHolidays.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/leaveMath.js"></script>
+    <script src="js/planDocument.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/palette.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
