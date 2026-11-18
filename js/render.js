@@ -235,10 +235,10 @@ window.VP = window.VP || {};
           }
           drawCentered(ctx, String(startDays), x, y, layout.startWidth, layout.rowHeight, font, P.ink);
           x += layout.startWidth;
-          drawCentered(ctx, String(planned), x, y, layout.plannedWidth, layout.rowHeight, font, P.muted);
+          drawCentered(ctx, VP.LeaveMath.formatDays(planned), x, y, layout.plannedWidth, layout.rowHeight, font, P.muted);
           x += layout.plannedWidth;
           const openColor = open < 0 ? P.openNegative : open > 0 ? P.openPositive : P.muted;
-          drawCentered(ctx, String(open), x, y, layout.openWidth, layout.rowHeight, "600 " + font, openColor);
+          drawCentered(ctx, VP.LeaveMath.formatDays(open), x, y, layout.openWidth, layout.rowHeight, "600 " + font, openColor);
         }
       }
 
@@ -314,9 +314,12 @@ window.VP = window.VP || {};
           ctx.fillRect(x, y, layout.dayWidth, layout.rowHeight);
         }
         if (status !== "working") {
-          const letter = P.letterFor(status);
+          const letter = VP.LeaveMath.cellLabel(status, date, regionCode);
           if (letter) {
-            const fontSize = Math.max(9, Math.min(14, Math.round(layout.rowHeight * 0.55)));
+            const fontSize = Math.max(
+              8,
+              Math.min(letter.length > 1 ? 11 : 14, Math.round(layout.rowHeight * (letter.length > 1 ? 0.42 : 0.55)))
+            );
             drawCentered(
               ctx,
               letter,

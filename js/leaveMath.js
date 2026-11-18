@@ -21,8 +21,20 @@ window.VP = window.VP || {};
     return !VP.YearCalendar.isBank(cal, date);
   }
 
+  /** Christmas Eve / New Year's Eve: half annual-leave day in German regions. */
+  function isGermanHalfLeaveDay(date, regionCode) {
+    if (!VP.Regions || !VP.Regions.isGerman(regionCode)) return false;
+    const parts = VP.Dates.parse(date);
+    return parts.m === 12 && (parts.d === 24 || parts.d === 31);
+  }
+
+  function leaveWeight(status, date, regionCode) {
+    if (status !== "dayOff" || !isCountableDay(date, regionCode)) return 0;
+    return isGermanHalfLeaveDay(date, regionCode) ? 0.5 : 1;
+  }
+
   function counts(status, date, regionCode) {
-    return status === "dayOff" && isCountableDay(date, regionCode);
+    return leaveWeight(status, date, regionCode) > 0;
   }
 
   function countPlanned(row, year, regionCode) {
@@ -31,26 +43,40 @@ window.VP = window.VP || {};
     for (const [key, status] of Object.entries(row.marks || {})) {
       if (status !== "dayOff" || !VP.Dates.tryParse(key)) continue;
       if (VP.Dates.parse(key).y !== year) continue;
-      if (counts(status, key, regionCode)) count++;
+      count += leaveWeight(status, key, regionCode);
     }
-    return count;
+    return Math.round(count * 2) / 2;
   }
 
   function openDays(row, planned, year) {
     const start = VP.startDaysFor ? VP.startDaysFor(row, year) : row.startDays | 0;
-    return start - planned;
+    return Math.round((start - planned) * 2) / 2;
+  }
+
+  function formatDays(value) {
+    const n = Math.round(Number(value) * 2) / 2;
+    return Number.isInteger(n) ? String(n) : n.toFixed(1);
+  }
+
+  function cellLabel(status, date, regionCode) {
+    if (status === "dayOff" && isGermanHalfLeaveDay(date, regionCode) && isCountableDay(date, regionCode)) {
+      return "A/2";
+    }
+    return VP.Palette.letterFor(status);
   }
 
   function describe(row, date, regionCode) {
     const cal = VP.YearCalendar.for(regionCode, VP.Dates.parse(date).y);
     let status = "working";
     if (!row.isRegion && row.marks && row.marks[date]) status = row.marks[date];
+    const weight = leaveWeight(status, date, regionCode);
     return {
       date,
       status,
       bankHoliday: VP.YearCalendar.bankName(cal, date),
       schoolHoliday: VP.YearCalendar.schoolName(cal, date),
-      countsAsPlanned: counts(status, date, regionCode)
+      countsAsPlanned: weight > 0,
+      leaveWeight: weight
     };
   }
 
@@ -77,7 +103,9 @@ window.VP = window.VP || {};
     else {
       text += statusLabel(detail.status);
       if (detail.status === "dayOff") {
-        text += detail.countsAsPlanned ? " · counts toward planned" : " · not counted";
+        if (detail.leaveWeight === 0.5) text += " · counts as half day";
+        else if (detail.countsAsPlanned) text += " · counts toward planned";
+        else text += " · not counted";
       }
     }
     if (detail.bankHoliday) text += "\nBank holiday: " + detail.bankHoliday;
@@ -93,9 +121,13 @@ window.VP = window.VP || {};
     regionRowAbove,
     effectiveRegion,
     isCountableDay,
+    isGermanHalfLeaveDay,
+    leaveWeight,
     counts,
     countPlanned,
     openDays,
+    formatDays,
+    cellLabel,
     describe,
     statusLabel,
     formatTooltip
