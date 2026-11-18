@@ -305,16 +305,15 @@ window.VP = window.VP || {};
 
         let status = "working";
         if (row.marks && row.marks[date]) status = row.marks[date];
-        if (status === "working") {
+        const nonWorkingBg = bank || weekend;
+        if (status === "working" || nonWorkingBg) {
           ctx.fillStyle = bank ? P.bank : weekend ? P.weekend : P.white;
           ctx.fillRect(x, y, layout.dayWidth, layout.rowHeight);
         } else {
           ctx.fillStyle = P.forStatus(status);
           ctx.fillRect(x, y, layout.dayWidth, layout.rowHeight);
-          if (bank || weekend) {
-            ctx.fillStyle = bank ? P.bank : P.weekend;
-            ctx.fillRect(x, y + layout.rowHeight - 3, layout.dayWidth, 3);
-          }
+        }
+        if (status !== "working") {
           const letter = P.letterFor(status);
           if (letter) {
             const fontSize = Math.max(9, Math.min(14, Math.round(layout.rowHeight * 0.55)));
@@ -326,7 +325,7 @@ window.VP = window.VP || {};
               layout.dayWidth,
               layout.rowHeight,
               "700 " + fontSize + "px Segoe UI, system-ui, sans-serif",
-              P.inkFor(status)
+              nonWorkingBg ? P.ink : P.inkFor(status)
             );
           }
         }

@@ -108,6 +108,7 @@ window.VP = window.VP || {};
     const loaded = await VP.Storage.load();
     model.document = loaded.document;
     model.document.onChanged = () => refresh(true);
+    VP.YearCalendar.clearCache();
     renderLegend();
     bindToolbar();
     bindScroll();
