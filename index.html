@@ -4,8 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Vacation Planner</title>
-    <meta http-equiv="Cache-Control" content="no-cache" />
-    <link rel="stylesheet" href="styles.css?v=20261118b" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <script>
+      (function () {
+        var v = Date.now();
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "styles.css?v=" + v;
+        document.head.appendChild(link);
+        window.VP_ASSET_V = v;
+      })();
+    </script>
   </head>
   <body>
     <header class="toolbar">
@@ -108,17 +117,37 @@
       </div>
     </div>
 
-    <script src="js/dates.js?v=20261118b"></script>
-    <script src="js/regions.js?v=20261118b"></script>
-    <script src="js/holidays.js?v=20261118b"></script>
-    <script src="js/schoolHolidays.js?v=20261118b"></script>
-    <script src="js/calendar.js?v=20261118b"></script>
-    <script src="js/leaveMath.js?v=20261118b"></script>
-    <script src="js/planDocument.js?v=20261118b"></script>
-    <script src="js/storage.js?v=20261118b"></script>
-    <script src="js/layout.js?v=20261118b"></script>
-    <script src="js/palette.js?v=20261118b"></script>
-    <script src="js/render.js?v=20261118b"></script>
-    <script src="js/app.js?v=20261118b"></script>
+    <script>
+      (function () {
+        var v = window.VP_ASSET_V || Date.now();
+        var files = [
+          "js/dates.js",
+          "js/regions.js",
+          "js/holidays.js",
+          "js/schoolHolidays.js",
+          "js/calendar.js",
+          "js/leaveMath.js",
+          "js/planDocument.js",
+          "js/storage.js",
+          "js/layout.js",
+          "js/palette.js",
+          "js/render.js",
+          "js/app.js"
+        ];
+        function load(i) {
+          if (i >= files.length) return;
+          var s = document.createElement("script");
+          s.src = files[i] + "?v=" + v;
+          s.onload = function () {
+            load(i + 1);
+          };
+          s.onerror = function () {
+            console.error("Failed to load " + files[i]);
+          };
+          document.body.appendChild(s);
+        }
+        load(0);
+      })();
+    </script>
   </body>
 </html>
